@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>codelympics.dev Auth</title>
+
+    <link
+      href="https://fonts.googleapis.com/css?family=Montserrat&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Montserrat', sans-serif;
+      }
+
+      body {
+        position: relative;
+        height: 100vh;
+      }
+
+      .main {
+        position: absolute;
+        left: 50%;
+        top: 0%;
+        transform: translate(-50%, 0%);
+
+        width: 100%;
+        border-radius: 8px;
+
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+
+        height: 100%;
+        min-height: 500px;
+
+        text-align: center;
+        padding: 24px 24px 36px;
+
+        transition: 0.2s cubic-bezier(0.075, 0.82, 0.165, 1);
+      }
+
+      @media (min-width: 500px) {
+        .main {
+          height: auto;
+
+          top: 50%;
+          transform: translate(-50%, -50%);
+          width: 450px;
+
+          border: 1px solid #dadce0;
+
+          padding: 48px 40px 36px;
+        }
+      }
+
+      form {
+        text-align: left;
+      }
+
+      small {
+        display: block;
+        margin: 4px 0 2px 0;
+      }
+
+      input {
+        width: 100%;
+        font-size: 1rem;
+        padding: 12px 20px;
+        margin: 4px 0;
+        border: 2px solid #d8d8d8;
+        border-radius: 4px;
+
+        box-sizing: border-box;
+
+        transition: 0.2s;
+      }
+
+      input:focus {
+        border: 2px solid #4285f4;
+        outline: 0;
+      }
+
+      a {
+        display: block;
+        margin: 6px 0;
+      }
+
+      button {
+        color: white;
+        background-color: #4285f4;
+        border: 0;
+        border-radius: 4px;
+        font-size: 1rem;
+        padding: 12px 30px;
+        transition: 0.2s;
+        margin: 6px 0;
+        float: right;
+      }
+
+      button:hover {
+        background-color: #287ae6;
+        -webkit-box-shadow: 0 1px 1px 0 rgba(66, 133, 244, 0.45),
+          0 1px 3px 1px rgba(66, 133, 244, 0.3);
+        box-shadow: 0 1px 1px 0 rgba(66, 133, 244, 0.45),
+          0 1px 3px 1px rgba(66, 133, 244, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main">
+      <h1>Sign in to codelympics.dev</h1>
+      <form action="/" method="POST">
+        <small>Email</small>
+        <input type="text" placeholder="Email" />
+        <small>Password</small>
+        <input type="password" placeholder="Password" />
+        <div clas>
+
+        </div>
+        <a href="/help">Can't log in?</a>
+        <button>Next</button>
+      </form>
+    </div>
+  </body>
+</html>
