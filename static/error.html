@@ -1,0 +1,15 @@
+{{define "page"}}
+<div class="main">
+  <img src="/assets/logo.png" />
+  <h1>{{.title}}</h1>
+  <div class="contents">
+    <p>{{.message}}</p>
+    <div class="buttons">
+      <a href="/help">Need help?</a>
+      {{if ne "" .returnURL}}
+        <a href="{{.returnURL}}" class="button">Back to app</a>
+      {{end}}
+    </div>
+  </div>
+</div>
+{{ end }}
