@@ -1,0 +1,27 @@
+{{define "page"}}
+<div class="main">
+  <img src="/assets/logo.png" />
+  <h1>
+    Authorize <i>{{.name}}</i>
+  </h1>
+  <p>
+    <b>{{.name}}</b> wants access to your codelympics.dev account
+  </p>
+  <div class="scopes">
+    {{ range.scopes }}
+    <div>
+      <img src="/assets/icons/{{.Icon}}.png" alt="{{.Icon}}" />
+      <b style="grid-area: name">{{.Name}}</b>
+      <span style="grid-area: description">{{.Description}}</span>
+    </div>
+    {{ end }}
+  </div>
+  <br />
+  <form action="/approve?client_id={{.id}}" method="POST" class="contents">
+    <div class="buttons">
+      <a href="/help">Need help?</a>
+      <button class="button">Approve</button>
+    </div>
+  </form>
+</div>
+{{ end }}

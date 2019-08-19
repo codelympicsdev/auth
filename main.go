@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"net/http"
 	"os"
 
@@ -20,6 +22,8 @@ func main() {
 	r.HandleFunc("/signin", signin).Methods("POST")
 	r.HandleFunc("/otp", otpPage).Methods("GET")
 	r.HandleFunc("/otp", otp).Methods("POST")
+	r.HandleFunc("/approve", approvePage).Methods("GET")
+	r.HandleFunc("/approve", approve).Methods("POST")
 
 	r.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("static/assets"))))
 
@@ -29,4 +33,32 @@ func main() {
 	}
 
 	http.ListenAndServe(":"+port, r)
+}
+
+// GetAPIClientResponse is the response for getting a single api client
+type GetAPIClientResponse struct {
+	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	RedirectURL string   `json:"redirect_url"`
+	Trusted     bool     `json:"trusted"`
+	Scopes      []string `json:"scopes"`
+}
+
+func getAPIClient(clientID string) (*GetAPIClientResponse, error) {
+	resp, err := http.Get("https://api.codelympics.dev/v0/apiclients/" + clientID)
+	if err != nil {
+		return nil, err
+	}
+	if resp == nil || resp.StatusCode != 200 {
+		return nil, errors.New("error or non 200 status")
+	}
+
+	var data *GetAPIClientResponse
+
+	err = json.NewDecoder(resp.Body).Decode(&data)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }

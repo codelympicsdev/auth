@@ -2,17 +2,27 @@
 <div class="main">
   <img src="/assets/logo.png" />
   <h1>Sign in</h1>
-  <p>Please sign into your codelympics.dev account</p>
-  <form action="/" method="POST" class="contents">
+  <p>Please sign into your codelympics.dev account.</p>
+  {{if .error}}<div class="error">{{.error}}</div><br />{{end}}
+  <form action="/signin{{.query}}" method="POST" class="contents">
     <small>Email</small>
-    <input type="text" placeholder="Email" name="email" autocomplete="email" />
+    <input
+      required
+      type="text"
+      placeholder="Email"
+      name="email"
+      autocomplete="email"
+    />
     <small>Password</small>
     <input
+      required
       type="password"
       placeholder="Password"
       name="password"
       autocomplete="current-password"
     />
+    <br />
+    <br />
     <div class="buttons">
       <a href="/help">Can't log in?</a>
       <button class="button">Next</button>

@@ -1,37 +1,12 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
+	"net/url"
 )
 
-// GetAPIClientResponse is the response for getting a single api client
-type GetAPIClientResponse struct {
-	ID          string   `json:"id"`
-	RedirectURL string   `json:"redirect_url"`
-	Trusted     bool     `json:"trusted"`
-	Scopes      []string `json:"scopes"`
-}
-
 func auth(w http.ResponseWriter, r *http.Request) {
-	clientID := r.FormValue("client_id")
-
-	resp, err := http.Get("https://api.codelympics.dev/v0/apiclients/" + clientID)
-	if err != nil || resp.StatusCode != 200 {
-		renderError(w, "Authentication Error", "The provided api client does not exist.", "")
-		return
-	}
-
-	var data *GetAPIClientResponse
-
-	err = json.NewDecoder(resp.Body).Decode(&data)
-	if err != nil {
-		log.Println(err.Error())
-		internalServerError(w)
-		return
-	}
-
 	s, err := store.Get(r, "session")
 	if err != nil {
 		log.Println(err.Error())
@@ -39,26 +14,14 @@ func auth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stringifiedData, err := json.Marshal(data)
-	if err != nil {
-		log.Println(err.Error())
-		internalServerError(w)
+	clientID := r.FormValue("client_id")
+
+	approveURL := "/approve?client_id=" + clientID
+
+	if s.Values["user_"+clientID] == nil {
+		http.Redirect(w, r, "/signin?client_id="+url.QueryEscape(clientID)+"&redirect="+url.QueryEscape(approveURL), 303)
 		return
 	}
 
-	s.Values["apiclient"] = string(stringifiedData)
-
-	err = s.Save(r, w)
-	if err != nil {
-		log.Println(err.Error())
-		internalServerError(w)
-		return
-	}
-
-	if s.Values["user"] == nil {
-		http.Redirect(w, r, "/signin", 303)
-		return
-	}
-
-	http.Redirect(w, r, "/approve", 303)
+	http.Redirect(w, r, approveURL, 303)
 }
