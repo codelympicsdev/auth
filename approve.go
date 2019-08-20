@@ -5,10 +5,12 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 var approveTemplate = template.Must(template.ParseFiles("static/layout.html", "static/approve.html"))
 
+// Scope is a localized scope for the approve screen
 type Scope struct {
 	Icon        string
 	Name        string
@@ -27,7 +29,7 @@ func approve(w http.ResponseWriter, r *http.Request) {
 	clientID := r.FormValue("client_id")
 
 	if clientID == "" {
-		renderError(w, "Client ID Missing", "The client ID is missing. You should specify a client id in the request.", "")
+		renderError(w, "Incomplete request", "The client_id field is missing.", "")
 		return
 	}
 
@@ -38,9 +40,22 @@ func approve(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token := s.Values["user_"+clientID]
-	if token == nil {
-		http.Redirect(w, r, "/signin?client_id="+url.QueryEscape(clientID)+"&redirect="+url.QueryEscape("/approve?client_id="+clientID), 303)
+	rawToken := s.Values["user_"+clientID]
+	if rawToken == nil {
+		http.Redirect(w, r, "/signin?client_id="+url.QueryEscape(clientID), 303)
+		return
+	}
+
+	token, err := ParseToken(rawToken.(string))
+	if err != nil {
+		log.Println(err.Error())
+		internalServerError(w)
+		return
+	}
+	if token.ExpirationTime.Before(time.Now()) {
+		s.Values["user_"+clientID] = nil
+		s.Save(r, w)
+		http.Redirect(w, r, "/signin?client_id="+url.QueryEscape(clientID), 303)
 		return
 	}
 
@@ -50,14 +65,14 @@ func approve(w http.ResponseWriter, r *http.Request) {
 		internalServerError(w)
 	}
 
-	http.Redirect(w, r, client.RedirectURL+"?token="+url.QueryEscape(token.(string)), 303)
+	http.Redirect(w, r, client.RedirectURL+"?token="+url.QueryEscape(rawToken.(string)), 303)
 }
 
 func approvePage(w http.ResponseWriter, r *http.Request) {
 	clientID := r.FormValue("client_id")
 
 	if clientID == "" {
-		renderError(w, "Client ID Missing", "The client ID is missing. You should specify a client id in the request.", "")
+		renderError(w, "Incomplete request", "The client_id field is missing.", "")
 		return
 	}
 
@@ -68,8 +83,23 @@ func approvePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if s.Values["user_"+clientID] == nil {
-		http.Redirect(w, r, "/signin?client_id="+url.QueryEscape(clientID)+"&redirect="+url.QueryEscape("/approve?client_id="+clientID), 303)
+	rawToken := s.Values["user_"+clientID]
+
+	if rawToken == nil {
+		http.Redirect(w, r, "/signin?client_id="+url.QueryEscape(clientID), 303)
+		return
+	}
+
+	token, err := ParseToken(rawToken.(string))
+	if err != nil {
+		log.Println(err.Error())
+		internalServerError(w)
+		return
+	}
+	if token.ExpirationTime.Before(time.Now()) {
+		s.Values["user_"+clientID] = nil
+		s.Save(r, w)
+		http.Redirect(w, r, "/signin?client_id="+url.QueryEscape(clientID), 303)
 		return
 	}
 

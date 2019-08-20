@@ -8,23 +8,23 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-
-	"github.com/gbrlsnchs/jwt/v3"
 )
 
 var signinTemplate = template.Must(template.ParseFiles("static/layout.html", "static/signin.html"))
 
+// SigninRequest is the request for a jwt token with email and password
 type SigninRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 	ClientID string `json:"client_id"`
 }
 
-type SigninResponse struct {
+// AuthResponse is the response with a token
+type AuthResponse struct {
 	Token string `json:"token"`
 }
 
-func doSignin(email string, password string, clientID string) (*SigninResponse, error) {
+func doSignin(email string, password string, clientID string) (*AuthResponse, error) {
 	sendData, err := json.Marshal(SigninRequest{Email: email, Password: password, ClientID: clientID})
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func doSignin(email string, password string, clientID string) (*SigninResponse, 
 
 		return nil, errors.New("error or non 200 status")
 	}
-	var data *SigninResponse
+	var data *AuthResponse
 
 	err = json.NewDecoder(resp.Body).Decode(&data)
 	if err != nil {
@@ -66,7 +66,11 @@ func doSignin(email string, password string, clientID string) (*SigninResponse, 
 
 func signin(w http.ResponseWriter, r *http.Request) {
 	clientID := r.FormValue("client_id")
-	redirect := r.FormValue("redirect")
+
+	if clientID == "" {
+		renderError(w, "Incomplete request", "The client_id field is missing.", "")
+		return
+	}
 
 	email := r.PostFormValue("email")
 	password := r.PostFormValue("password")
@@ -103,7 +107,7 @@ func signin(w http.ResponseWriter, r *http.Request) {
 		s.Values["user_otpUpgrade_"+clientID] = resp.Token
 		s.Save(r, w)
 
-		http.Redirect(w, r, "/otp?client_id="+url.QueryEscape(clientID)+"&redirect="+url.QueryEscape("/approve?client_id="+clientID), 303)
+		http.Redirect(w, r, "/otp?client_id="+url.QueryEscape(clientID), 303)
 	} else {
 		s.Values["user_"+clientID] = resp.Token
 		err = s.Save(r, w)
@@ -112,18 +116,23 @@ func signin(w http.ResponseWriter, r *http.Request) {
 			internalServerError(w)
 			return
 		}
-	
-		http.Redirect(w, r, redirect, 303)
+
+		http.Redirect(w, r, "/approve?client_id="+url.QueryEscape(clientID), 303)
 	}
 }
 
 func signinPage(w http.ResponseWriter, r *http.Request) {
 	clientID := r.FormValue("client_id")
-	redirect := r.FormValue("redirect")
+
+	if clientID == "" {
+		renderError(w, "Incomplete request", "The client_id field is missing.", "")
+		return
+	}
+
 	e := r.FormValue("error")
 
 	err := signinTemplate.Execute(w, map[string]interface{}{
-		"query": "?client_id=" + url.QueryEscape(clientID) + "&redirect=" + url.QueryEscape(redirect),
+		"query": "?client_id=" + url.QueryEscape(clientID),
 		"error": e,
 	})
 	if err != nil {
@@ -131,29 +140,4 @@ func signinPage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to render page", 500)
 		return
 	}
-}
-
-// Token is the structure for the JWT token
-type Token struct {
-	jwt.Payload
-
-	RequiresUpgrade bool `json:"requires_upgrade"`
-
-	ID        string `json:"id,omitempty"`
-	FullName  string `json:"full_name,omitempty"`
-	Email     string `json:"email,omitempty"`
-	AvatarURL string `json:"avatar_url,omitempty"`
-
-	Scopes []string `json:"scopes"`
-}
-
-func ParseToken(token string) (*Token, error) {
-	var t *Token
-
-	_, err := jwt.Verify([]byte(token), jwt.None(), &t)
-	if err != nil {
-		return nil, err
-	}
-
-	return t, nil
 }

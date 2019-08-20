@@ -6,15 +6,28 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gbrlsnchs/jwt/v3"
+
 	"github.com/gorilla/mux"
-	"github.com/gorilla/sessions"
+
+	"gopkg.in/boj/redistore.v1"
 )
 
 var rootClientID = os.Getenv("ROOT_CLIENT_ID")
 var rootClientSecret = os.Getenv("ROOT_CLIENT_SECRET")
-var store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+var store *redistore.RediStore
 
 func main() {
+	var redisURI = os.Getenv("REDIS_URI")
+	var redisPassword = os.Getenv("REDIS_PASSWORD")
+
+	var err error
+	store, err = redistore.NewRediStore(10, "tcp", redisURI, redisPassword, []byte(os.Getenv("SESSION_KEY")))
+	if err != nil {
+		panic(err)
+	}
+	defer store.Close()
+	
 	r := mux.NewRouter()
 
 	r.HandleFunc("/auth", auth).Methods("GET")
@@ -61,4 +74,30 @@ func getAPIClient(clientID string) (*GetAPIClientResponse, error) {
 	}
 
 	return data, nil
+}
+
+// Token is the structure for the JWT token
+type Token struct {
+	jwt.Payload
+
+	RequiresUpgrade bool `json:"requires_upgrade"`
+
+	ID        string `json:"id,omitempty"`
+	FullName  string `json:"full_name,omitempty"`
+	Email     string `json:"email,omitempty"`
+	AvatarURL string `json:"avatar_url,omitempty"`
+
+	Scopes []string `json:"scopes"`
+}
+
+// ParseToken takes a jwt and extracts the content
+func ParseToken(token string) (*Token, error) {
+	var t *Token
+
+	_, err := jwt.Verify([]byte(token), jwt.None(), &t)
+	if err != nil {
+		return nil, err
+	}
+
+	return t, nil
 }
