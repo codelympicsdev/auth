@@ -27,9 +27,10 @@ func main() {
 		panic(err)
 	}
 	defer store.Close()
-	
+
 	r := mux.NewRouter()
 
+	r.Handle("/", http.RedirectHandler("https://codelympics.dev", 303))
 	r.HandleFunc("/auth", auth).Methods("GET")
 	r.HandleFunc("/signin", signinPage).Methods("GET")
 	r.HandleFunc("/signin", signin).Methods("POST")
