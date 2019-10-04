@@ -30,7 +30,7 @@ func main() {
 
 	r := mux.NewRouter()
 
-	r.Use(HTTPRedirect)
+	//r.Use(HTTPRedirect)
 
 	r.Handle("/", http.RedirectHandler("https://codelympics.dev", 303))
 	r.HandleFunc("/auth", auth).Methods("GET")
