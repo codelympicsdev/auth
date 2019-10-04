@@ -30,6 +30,8 @@ func main() {
 
 	r := mux.NewRouter()
 
+	r.Use(HTTPRedirect)
+
 	r.Handle("/", http.RedirectHandler("https://codelympics.dev", 303))
 	r.HandleFunc("/auth", auth).Methods("GET")
 	r.HandleFunc("/signin", signinPage).Methods("GET")
@@ -47,6 +49,17 @@ func main() {
 	}
 
 	http.ListenAndServe(":"+port, r)
+}
+
+// HTTPRedirect redirects http traffic to https
+func HTTPRedirect(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header["X-Forwarded-Proto"][0] == "http" {
+			http.Redirect(w, r, "https://"+r.Host+r.RequestURI, http.StatusMovedPermanently)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 // GetAPIClientResponse is the response for getting a single api client
