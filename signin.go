@@ -30,7 +30,7 @@ func doSignin(email string, password string, clientID string) (*AuthResponse, er
 		return nil, err
 	}
 
-	request, err := http.NewRequest("POST", "https://api.codelympics.dev/v0/auth/signin", bytes.NewBuffer(sendData))
+	request, err := http.NewRequest("POST", apiURL+"/auth/signin", bytes.NewBuffer(sendData))
 	if err != nil {
 		return nil, err
 	}

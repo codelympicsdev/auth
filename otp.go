@@ -25,7 +25,7 @@ func doOtp(otp string, token string, clientID string) (*AuthResponse, error) {
 		return nil, err
 	}
 
-	request, err := http.NewRequest("POST", "https://api.codelympics.dev/v0/auth/upgrade/otp", bytes.NewBuffer(sendData))
+	request, err := http.NewRequest("POST", apiURL+"/auth/upgrade/otp", bytes.NewBuffer(sendData))
 	if err != nil {
 		return nil, err
 	}

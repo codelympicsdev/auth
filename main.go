@@ -13,11 +13,16 @@ import (
 	"gopkg.in/boj/redistore.v1"
 )
 
+var apiURL = os.Getenv("API_URL")
 var rootClientID = os.Getenv("ROOT_CLIENT_ID")
 var rootClientSecret = os.Getenv("ROOT_CLIENT_SECRET")
 var store *redistore.RediStore
 
 func main() {
+	if apiURL == "" {
+		apiURL = "https://api.codelympics.dev/v0"
+	}
+
 	var redisURI = os.Getenv("REDIS_URI")
 	var redisPassword = os.Getenv("REDIS_PASSWORD")
 
@@ -59,7 +64,7 @@ type GetAPIClientResponse struct {
 }
 
 func getAPIClient(clientID string) (*GetAPIClientResponse, error) {
-	resp, err := http.Get("https://api.codelympics.dev/v0/apiclients/" + clientID)
+	resp, err := http.Get(apiURL + "/apiclients/" + clientID)
 	if err != nil {
 		return nil, err
 	}
