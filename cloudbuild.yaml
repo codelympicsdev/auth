@@ -5,3 +5,5 @@ steps:
   args: ["push", "gcr.io/$PROJECT_ID/auth"]
 - name: 'gcr.io/cloud-builders/gcloud'
   args: ['beta', 'run', 'deploy', 'auth', '--image', 'gcr.io/$PROJECT_ID/auth:${SHORT_SHA}', '--region', 'us-central1', '--platform', 'managed']
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['beta', 'run', 'deploy', 'auth', '--image', 'gcr.io/$PROJECT_ID/auth:${SHORT_SHA}', '--region', 'europe-west1', '--platform', 'managed']
