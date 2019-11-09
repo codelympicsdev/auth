@@ -17,7 +17,9 @@
     {{ end }}
   </div>
   <br />
-  <form action="/approve?client_id={{.id}}" method="POST" class="contents">
+  <form action="/approve" method="POST" class="contents">
+    <small>You will be redirected to {{.redirectURL}}</small>
+    <br />
     <div class="buttons">
       <a href="/help">Need help?</a>
       <button class="button">Approve</button>
