@@ -4,7 +4,7 @@
   <h1>Sign in</h1>
   <p>To confirm your identity please enter a one time password</p>
   {{if .error}}<div class="error">{{.error}}</div><br />{{end}}
-  <form action="/otp{{.query}}" method="POST" class="contents">
+  <form action="/otp" method="POST" class="contents">
     <small>One Time Password</small>
     <input required type="text" placeholder="One Time Password" name="otp" />
     <div class="buttons">
