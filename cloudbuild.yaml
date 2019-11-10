@@ -4,6 +4,6 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ["push", "gcr.io/$PROJECT_ID/auth"]
 - name: 'gcr.io/cloud-builders/gcloud'
-  args: ['beta', 'run', 'deploy', 'auth', '--image', 'gcr.io/$PROJECT_ID/auth:${SHORT_SHA}', '--region', 'us-central1', '--platform', 'managed']
+  args: ['beta', 'run', 'deploy', 'auth', '--image', 'gcr.io/$PROJECT_ID/auth:${SHORT_SHA}', '--region', 'us-central1', '--platform', 'managed', '--timeout', '60']
 - name: 'gcr.io/cloud-builders/gcloud'
-  args: ['beta', 'run', 'deploy', 'auth', '--image', 'gcr.io/$PROJECT_ID/auth:${SHORT_SHA}', '--region', 'europe-west1', '--platform', 'managed']
+  args: ['beta', 'run', 'deploy', 'auth', '--image', 'gcr.io/$PROJECT_ID/auth:${SHORT_SHA}', '--region', 'europe-west1', '--platform', 'managed', '--timeout', '60']
